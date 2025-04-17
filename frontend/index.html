@@ -1,25 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="style.css"/>
-  <title>Stego Upload</title>
+    <title>Public Gallery - StegoService</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Steganography Service</h1>
-  <form id="uploadForm">
-    <input type="file" name="file" required /><br/>
-    <textarea name="message" placeholder="Secret message"></textarea><br/>
-    S: <input type="number" name="S" /><br/>
-    L: <input type="number" name="L" /><br/>
-    C: <select name="C">
-      <option value="constant">Constant</option>
-      <option value="double">Double Step</option>
-    </select><br/>
-    <button type="submit">Submit</button>
-  </form>
-  <div id="output"></div>
-  <script src="script.js"></script>
+    <nav>
+        <a href="index.html">Gallery</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+    </nav>
+    <div class="container">
+        <h1>Public Gallery</h1>
+        <div id="gallery"></div>
+    </div>
+    <script src="scripts/app.js"></script>
 </body>
 </html>

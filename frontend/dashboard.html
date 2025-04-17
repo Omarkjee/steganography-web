@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - StegoService</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Gallery</a>
+        <a href="dashboard.html">Dashboard</a>
+        <button id="logoutBtn">Logout</button>
+    </nav>
+    <div class="container">
+        <h1>Dashboard</h1>
+        <form id="uploadForm">
+            <input type="file" id="carrierFile" required>
+            <textarea id="secretMessage" placeholder="Secret Message" required></textarea>
+            <input type="number" id="startBit" placeholder="Start Bit (S)" required>
+            <input type="number" id="periodicity" placeholder="Periodicity (L)" required>
+            <select id="mode">
+                <option value="0">Fixed L</option>
+                <option value="1">Dynamic L</option>
+            </select>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="userFiles"></div>
+    </div>
+    <script src="scripts/dashboard.js"></script>
+</body>
+</html>

@@ -1,12 +1,11 @@
 const express = require('express');
-const db = require('../db/database');
 const router = express.Router();
+const filesController = require('../controllers/filesController');
+const authMiddleware = require('../middleware/auth');
 
-router.get('/', (req, res) => {
-  db.all('SELECT * FROM files ORDER BY id DESC', (err, rows) => {
-    if (err) return res.status(500).json({ message: 'Error retrieving files' });
-    res.json(rows);
-  });
-});
+router.use(authMiddleware);
+router.post('/', filesController.uploadFile);
+router.get('/', filesController.listFiles);
+router.get('/:id', filesController.downloadFile);
 
 module.exports = router;
