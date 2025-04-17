@@ -8,6 +8,7 @@ const fileUpload = require('express-fileupload');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
 
 // Initialize Redis client
 let redisClient = createClient({
@@ -83,6 +84,12 @@ app.use(session({
     maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
   }
 }));
+
+app.use(cors({
+    origin: 'https://your-netlify-site.netlify.app',
+    credentials: true
+  }));
+
 
 // Routes
 app.post('/api/register', async (req, res) => {

@@ -23,7 +23,11 @@
                 <option value="0">Fixed L</option>
                 <option value="1">Dynamic L</option>
             </select>
-            <button type="submit">Upload</button>
+            <button type="submit" id="uploadBtn">
+                <span id="uploadBtnText">Upload</span>
+                <span id="uploadSpinner" class="hidden">Loading...</span>
+            </button>
+            <div id="uploadError" class="error hidden"></div>
         </form>
         
         <h2>Extract Message</h2>
@@ -35,9 +39,13 @@
                 <option value="0">Fixed L</option>
                 <option value="1">Dynamic L</option>
             </select>
-            <button type="submit">Extract</button>
+            <button type="submit" id="extractBtn">
+                <span id="extractBtnText">Extract</span>
+                <span id="extractSpinner" class="hidden">Loading...</span>
+            </button>
+            <div id="extractError" class="error hidden"></div>
+            <div id="extractedMessage" class="message"></div>
         </form>
-        <div id="extractedMessage"></div>
         
         <h2>Your Files</h2>
         <div id="userFiles"></div>

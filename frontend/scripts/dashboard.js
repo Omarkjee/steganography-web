@@ -1,38 +1,80 @@
+// Utility function for dashboard
+function setLoading(formId, isLoading) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    
+    const btn = form.querySelector('button[type="submit"]');
+    const btnText = btn.querySelector('span:first-child');
+    const spinner = btn.querySelector('span:last-child');
+    const errorEl = form.querySelector('.error');
+    
+    btn.disabled = isLoading;
+    btnText.classList.toggle('hidden', isLoading);
+    spinner.classList.toggle('hidden', !isLoading);
+    if (!isLoading) errorEl.classList.add('hidden');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-    const userFiles = document.getElementById('userFiles');
-    
-    const response = await fetch('https://stego-tgu7.onrender.com/api/files', {
-        credentials: 'include'
-    });
-    const files = await response.json();
-    
-    files.forEach(file => {
-        const card = document.createElement('div');
-        card.className = 'file-card';
-        card.innerHTML = `
-            <h3>${file.original_name}</h3>
-            <a href="https://stego-tgu7.onrender.com/api/files/${file.id}" download>Download</a>
-            <p>Uploaded: ${new Date(file.created_at).toLocaleDateString()}</p>
-        `;
-        userFiles.appendChild(card);
-    });
+    // Check auth status
+    try {
+        const response = await fetch('https://stego-tgu7.onrender.com/api/auth/check', {
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Load user files
+        const files = await fetch('https://stego-tgu7.onrender.com/api/files', {
+            credentials: 'include'
+        }).then(res => res.json());
+        
+        // Render files...
+    } catch (error) {
+        window.location.href = 'login.html';
+    }
 });
 
-document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('file', e.target.elements.carrierFile.files[0]);
-    formData.append('message', e.target.elements.secretMessage.value);
-    formData.append('s', parseInt(e.target.elements.startBit.value));
-    formData.append('l', parseInt(e.target.elements.periodicity.value));
-    formData.append('c', parseInt(e.target.elements.mode.value));
-    
-    const response = await fetch('https://stego-tgu7.onrender.com/api/files', {
+// Logout
+document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    await fetch('https://stego-tgu7.onrender.com/api/auth/logout', {
         method: 'POST',
-        body: formData,
         credentials: 'include'
     });
+    window.location.href = 'index.html';
+});
+
+// File Upload
+document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setLoading('uploadForm', true);
     
-    if (response.ok) window.location.reload();
-    else alert('Upload failed');
+    try {
+        const formData = new FormData();
+        formData.append('file', e.target.elements.carrierFile.files[0]);
+        formData.append('message', e.target.elements.secretMessage.value);
+        formData.append('s', parseInt(e.target.elements.startBit.value));
+        formData.append('l', parseInt(e.target.elements.periodicity.value));
+        formData.append('c', parseInt(e.target.elements.mode.value));
+        
+        const response = await fetch('https://stego-tgu7.onrender.com/api/files', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Upload failed');
+        }
+        
+        window.location.reload();
+    } catch (error) {
+        const errorEl = document.getElementById('uploadError');
+        errorEl.textContent = error.message;
+        errorEl.classList.remove('hidden');
+    } finally {
+        setLoading('uploadForm', false);
+    }
 });

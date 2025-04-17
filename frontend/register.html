@@ -15,10 +15,13 @@
         <form id="registerForm">
             <input type="text" placeholder="Username" required>
             <input type="password" placeholder="Password" required>
-            <button type="submit">Register</button>
+            <button type="submit" id="registerBtn">
+                <span id="registerBtnText">Register</span>
+                <span id="registerSpinner" class="hidden">Loading...</span>
+            </button>
+            <div id="registerError" class="error hidden"></div>
         </form>
     </div>
     <script src="scripts/auth.js"></script>
 </body>
-
 </html>
