@@ -1,55 +1,29 @@
-import express from 'express';
-import fileUpload from 'express-fileupload';
-import fs from 'fs';
-import path from 'path';
-import { verifyToken } from '../middleware.js';
-import { initDB } from '../db/database.js';
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const db = require('../db/database');
+const auth = require('../middleware/auth');
+const { embedMessage } = require('../utils/stego');
 
 const router = express.Router();
-router.use(fileUpload());
 
-const embedMessage = (buffer, message, s, l, mode) => {
-  const msgBits = [...Buffer.from(message)].flatMap(b => b.toString(2).padStart(8, '0'));
-  let j = 0;
-  let L = parseInt(l);
+const storage = multer.diskStorage({
+  destination: './uploads/',
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
 
-  for (let i = s; j < msgBits.length && i < buffer.length * 8; i += L) {
-    const byteIndex = Math.floor(i / 8);
-    const bitIndex = 7 - (i % 8);
-    buffer[byteIndex] &= ~(1 << bitIndex);
-    buffer[byteIndex] |= parseInt(msgBits[j++]) << bitIndex;
+router.post('/embed', auth, upload.single('file'), (req, res) => {
+  const { message, S, L, C } = req.body;
+  const filePath = req.file.path;
+  const outputPath = filePath.replace(/(\\|\/)([^/]+)$/, '$1mod_$2');
 
-    if (mode === 'cycle') {
-      L = [8, 16, 24][j % 3];
-    }
-  }
+  embedMessage(filePath, message, parseInt(S), parseInt(L), C, outputPath, (err) => {
+    if (err) return res.status(500).json({ message: 'Embedding failed' });
 
-  return buffer;
-};
-
-router.post('/embed', verifyToken, async (req, res) => {
-  const { s, l, c, message } = req.body;
-  const file = req.files.file;
-
-  const buffer = embedMessage(file.data, message, parseInt(s), parseInt(l), c);
-
-  const filePath = `uploads/${Date.now()}_${file.name}`;
-  fs.writeFileSync(filePath, buffer);
-
-  const db = await initDB();
-  await db.run('INSERT INTO posts (filename, originalname) VALUES (?, ?)', [filePath, file.name]);
-
-  res.json({ message: 'File embedded and posted', file: filePath });
+    db.run('INSERT INTO files (filename, uploader) VALUES (?, ?)', [outputPath, req.user.username]);
+    res.json({ url: `/uploads/${path.basename(outputPath)}` });
+  });
 });
 
-router.get('/posts', async (_, res) => {
-  const db = await initDB();
-  const posts = await db.all('SELECT * FROM posts ORDER BY uploadDate DESC');
-  res.json(posts);
-});
-
-router.get('/file/:name', (req, res) => {
-  res.sendFile(path.resolve(`uploads/${req.params.name}`));
-});
-
-export default router;
+module.exports = router;

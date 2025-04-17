@@ -1,26 +1,18 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./db/app.db');
 
-export const initDB = async () => {
-  const db = await open({
-    filename: './db/data.db',
-    driver: sqlite3.Database,
-  });
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password TEXT
+  )`);
 
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE,
-      password TEXT
-    );
+  db.run(`CREATE TABLE IF NOT EXISTS files (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    filename TEXT,
+    uploader TEXT
+  )`);
+});
 
-    CREATE TABLE IF NOT EXISTS posts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      filename TEXT,
-      originalname TEXT,
-      uploadDate DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
-
-  return db;
-};
+module.exports = db;

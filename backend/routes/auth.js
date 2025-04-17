@@ -1,33 +1,28 @@
-import express from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { initDB } from '../db/database.js';
-
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const db = require('../db/database');
 const router = express.Router();
+const SECRET = 'stego_secret';
 
-router.post('/register', async (req, res) => {
-  const db = await initDB();
+router.post('/register', (req, res) => {
   const { username, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  try {
-    await db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashed]);
+  const hash = bcrypt.hashSync(password, 8);
+  db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash], function(err) {
+    if (err) return res.status(400).json({ message: 'User exists' });
     res.json({ message: 'User registered' });
-  } catch {
-    res.status(400).json({ message: 'User already exists' });
-  }
+  });
 });
 
-router.post('/login', async (req, res) => {
-  const db = await initDB();
+router.post('/login', (req, res) => {
   const { username, password } = req.body;
-  const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
+  db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
+    if (!user || !bcrypt.compareSync(password, user.password))
+      return res.status(401).json({ message: 'Invalid credentials' });
 
-  if (user && await bcrypt.compare(password, user.password)) {
-    const token = jwt.sign({ id: user.id, username: user.username }, 'secret_key');
+    const token = jwt.sign({ username: user.username }, SECRET, { expiresIn: '24h' });
     res.json({ token });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
-  }
+  });
 });
 
-export default router;
+module.exports = router;

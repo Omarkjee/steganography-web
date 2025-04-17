@@ -1,26 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Steganography Service</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css"/>
+  <title>Stego Upload</title>
 </head>
 <body>
-  <h1>Steganography Embed</h1>
+  <h1>Steganography Service</h1>
   <form id="uploadForm">
-    <input type="file" name="file" required /><br>
-    <textarea name="message" placeholder="Secret message" required></textarea><br>
-    <input type="number" name="s" placeholder="Start Bit (S)" required />
-    <input type="number" name="l" placeholder="Periodicity (L)" required />
-    <select name="c">
+    <input type="file" name="file" required /><br/>
+    <textarea name="message" placeholder="Secret message"></textarea><br/>
+    S: <input type="number" name="S" /><br/>
+    L: <input type="number" name="L" /><br/>
+    C: <select name="C">
       <option value="constant">Constant</option>
-      <option value="cycle">Cycle</option>
-    </select>
-    <button type="submit">Embed</button>
+      <option value="double">Double Step</option>
+    </select><br/>
+    <button type="submit">Submit</button>
   </form>
-
-  <h2>Public Posts</h2>
-  <div id="posts"></div>
-
-  <script src="app.js"></script>
+  <div id="output"></div>
+  <script src="script.js"></script>
 </body>
 </html>
