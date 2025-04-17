@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Steganography Service</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Steganography Embed</h1>
+  <form id="uploadForm">
+    <input type="file" name="file" required /><br>
+    <textarea name="message" placeholder="Secret message" required></textarea><br>
+    <input type="number" name="s" placeholder="Start Bit (S)" required />
+    <input type="number" name="l" placeholder="Periodicity (L)" required />
+    <select name="c">
+      <option value="constant">Constant</option>
+      <option value="cycle">Cycle</option>
+    </select>
+    <button type="submit">Embed</button>
+  </form>
+
+  <h2>Public Posts</h2>
+  <div id="posts"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
