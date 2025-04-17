@@ -1,17 +1,24 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const RedisStore = require('connect-redis').default;
+const { createClient } = require('redis');
 const knex = require('knex');
 const fileUpload = require('express-fileupload');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-// Database Configuration - Using Render's temp directory
+// Initialize Redis client
+let redisClient = createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379'
+});
+redisClient.connect().catch(console.error);
+
+// Database Configuration
 const dbDir = path.join(process.cwd(), 'data');
 const dbPath = path.join(dbDir, 'stego.db');
 
-// Ensure data directory exists
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
@@ -21,7 +28,12 @@ const db = knex({
   connection: {
     filename: dbPath
   },
-  useNullAsDefault: true
+  useNullAsDefault: true,
+  pool: {
+    afterCreate: (conn, done) => {
+      conn.run('PRAGMA foreign_keys = ON', done);
+    }
+  }
 });
 
 // Database Initialization
@@ -60,12 +72,16 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(fileUpload());
 
-// Session Configuration - Using memory store (Render doesn't persist files between deploys)
+// Session Configuration with Redis
 app.use(session({
+  store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
+  }
 }));
 
 // Routes
