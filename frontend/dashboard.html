@@ -12,6 +12,8 @@
     </nav>
     <div class="container">
         <h1>Dashboard</h1>
+        
+        <h2>Embed Message</h2>
         <form id="uploadForm">
             <input type="file" id="carrierFile" required>
             <textarea id="secretMessage" placeholder="Secret Message" required></textarea>
@@ -23,8 +25,24 @@
             </select>
             <button type="submit">Upload</button>
         </form>
+        
+        <h2>Extract Message</h2>
+        <form id="extractForm">
+            <input type="file" id="stegoFile" required>
+            <input type="number" id="extractS" placeholder="Start Bit (S)" required>
+            <input type="number" id="extractL" placeholder="Periodicity (L)" required>
+            <select id="extractMode">
+                <option value="0">Fixed L</option>
+                <option value="1">Dynamic L</option>
+            </select>
+            <button type="submit">Extract</button>
+        </form>
+        <div id="extractedMessage"></div>
+        
+        <h2>Your Files</h2>
         <div id="userFiles"></div>
     </div>
     <script src="scripts/dashboard.js"></script>
+    <script src="scripts/stegano.js"></script>
 </body>
 </html>

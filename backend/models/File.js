@@ -1,4 +1,3 @@
-
 const knex = require('../database/database');
 
 module.exports = {
@@ -15,7 +14,15 @@ module.exports = {
         return await knex('files').select('*');
     },
 
+    findByUser: async (userId) => {
+        return await knex('files').where({ user_id: userId });
+    },
+
     findById: async (id) => {
         return await knex('files').where({ id }).first();
+    },
+
+    delete: async (id) => {
+        return await knex('files').where({ id }).del();
     }
 };

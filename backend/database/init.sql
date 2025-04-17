@@ -1,10 +1,13 @@
-
 PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
+
+BEGIN TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
+    password_hash TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS files (
@@ -12,9 +15,14 @@ CREATE TABLE IF NOT EXISTS files (
     user_id INTEGER NOT NULL,
     original_name TEXT NOT NULL,
     modified_file BLOB NOT NULL,
-    s INTEGER NOT NULL,
-    l INTEGER NOT NULL,
+    s INTEGER NOT NULL CHECK (s >= 0),
+    l INTEGER NOT NULL CHECK (l > 0),
     c INTEGER NOT NULL CHECK (c IN (0, 1)),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE INDEX IF NOT EXISTS idx_files_user ON files(user_id);
+CREATE INDEX IF NOT EXISTS idx_files_created ON files(created_at);
+
+COMMIT;
