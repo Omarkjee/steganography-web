@@ -86,7 +86,7 @@ app.use(session({
 }));
 
 app.use(cors({
-    origin: 'https://your-netlify-site.netlify.app',
+    origin: 'https://majestic-panda-dff3bc.netlify.app/',
     credentials: true
   }));
 
